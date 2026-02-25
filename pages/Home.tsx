@@ -139,11 +139,11 @@ const Home: React.FC = () => {
       setLoadingNews(true);
       try {
         let newsData: NewsItem[];
-        // if (activeLevel === 'UMUM') {
-        newsData = await fetchLatestNews();
-        // } else {
-        //   newsData = await fetchNewsWithLimitAndLevel(3, activeLevel);
-        // }
+        if (activeLevel === 'UMUM') {
+          newsData = await fetchLatestNews();
+        } else {
+          newsData = await fetchNewsWithLimitAndLevel(3, activeLevel);
+        }
         if (isMounted) {
           setNews(newsData);
         }
@@ -266,7 +266,7 @@ const Home: React.FC = () => {
           <div className="flex flex-col md:flex-row justify-between items-end mb-10 md:mb-16 gap-6">
             <div>
               <h3 className="text-white/60 font-black uppercase tracking-[0.3em] text-xs mb-4">Warta Terkini</h3>
-              <h2 className="text-3xl md:text-4xl font-black text-white leading-tight">Berita & Agenda {activeLevel}</h2>
+              <h2 className="text-3xl md:text-4xl font-black text-white leading-tight">Berita & Agenda {activeLevel === 'UMUM' ? 'Terbaru' : theme.name}</h2>
             </div>
             <Link to="/berita" className="bg-white/10 text-white px-6 py-3 md:px-8 md:py-3 rounded-full font-bold hover:bg-white/20 transition-all border border-white/20 flex items-center gap-2 text-sm md:text-base">
               Buka Semua <ArrowRight className="w-4 h-4" />
@@ -281,7 +281,7 @@ const Home: React.FC = () => {
                 <Link to={`/berita/${news.id}`} key={news.id} className="bg-white rounded-[2rem] md:rounded-[2.5rem] overflow-hidden hover:-translate-y-3 transition-all duration-500 group border border-white/5">
                   <div className="relative h-56 md:h-64 overflow-hidden">
                     <img src={news.main_image} alt={news.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                    <div className={`absolute top-4 left-4 md:top-6 md:left-6 ${theme.bg} text-white px-3 py-1 md:px-4 md:py-1.5 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest shadow-lg`}>
+                <div className={`absolute top-4 left-4 md:top-6 md:left-6 ${LEVEL_CONFIG[news.jenjang]?.bg || 'bg-slate-900'} text-white px-3 py-1 md:px-4 md:py-1.5 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest shadow-lg`}>
                       {news.jenjang}
                     </div>
                   </div>

@@ -94,10 +94,8 @@ const ManageNews: React.FC = () => {
    const filteredNews = news.filter(item => {
       const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesCategory = activeCategory === 'Semua' || item.category === activeCategory;
-      // Show items if: no env filter, jenjang is UMUM, or jenjang matches env
-      const matchesJenjang = !visibleJenjang ||
-         item.jenjang === 'UMUM' ||
-         item.jenjang === visibleJenjang;
+      // Show news ONLY if it matches visibleJenjang
+      const matchesJenjang = item.jenjang === visibleJenjang;
 
       // Debug logging (can be removed later)
       if (!matchesJenjang && item.jenjang) {
