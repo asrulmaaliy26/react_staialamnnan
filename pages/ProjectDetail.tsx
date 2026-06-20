@@ -134,7 +134,7 @@ const ProjectDetail: React.FC = () => {
                      </div>
                      <div>
                         <h3 className="text-xl font-bold text-slate-900 mb-4">Latar Belakang</h3>
-                        <p className="leading-relaxed">Projek ini lahir dari pengamatan siswa terhadap permasalahan nyata di lingkungan sekitar sekolah. Dengan dukungan bimbingan dari laboratorium teknologi LPI Al Hidayah, tim berhasil mengembangkan prototipe ini selama 3 bulan pengembangan intensif.</p>
+                        <p className="leading-relaxed">Projek ini lahir dari pengamatan siswa terhadap permasalahan nyata di lingkungan sekitar sekolah. Dengan dukungan bimbingan dari laboratorium teknologi STAI Al Mannan, tim berhasil mengembangkan prototipe ini selama 3 bulan pengembangan intensif.</p>
                      </div>
                      <div className="bg-blue-50 p-6 rounded-[2rem] border border-blue-100">
                         <h3 className="text-xl font-bold text-blue-800 mb-4">Fitur Utama</h3>

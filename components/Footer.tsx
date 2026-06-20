@@ -32,7 +32,7 @@ const Footer: React.FC = () => {
               Membentuk intelektual muslim yang unggul, berkarakter Qurani, dan berdaya saing global melalui pendidikan berkualitas terpadu.
             </p>
             <div className="flex space-x-4">
-              <a href="https://www.instagram.com/lpialhidayahkauman" target="_blank" rel="noopener noreferrer" className="p-3 bg-white/5 rounded-2xl hover:bg-islamic-gold-500 hover:text-white transition-all border border-white/10">
+              <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" className="p-3 bg-white/5 rounded-2xl hover:bg-islamic-gold-500 hover:text-white transition-all border border-white/10">
                 <Instagram className="w-5 h-5" />
               </a>
               <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" className="p-3 bg-white/5 rounded-2xl hover:bg-islamic-gold-500 hover:text-white transition-all border border-white/10">
@@ -93,7 +93,7 @@ const Footer: React.FC = () => {
               </li>
               <li className="flex items-center group">
                 <div className="p-2 bg-white/5 rounded-xl mr-4 group-hover:bg-islamic-gold-500 group-hover:text-white transition-all"><Mail className="w-5 h-5 text-islamic-gold-500 group-hover:text-inherit" /></div>
-                <span className="font-bold text-white">lpialhidayahkauman@gmail.com</span>
+                <span className="font-bold text-white">admin@staialmannan.ac.id</span>
               </li>
             </ul>
           </div>

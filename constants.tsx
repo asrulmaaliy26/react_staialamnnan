@@ -1,2 +1,2 @@
 
-export const SCHOOL_NAME = "Lembaga Pendidikan Islam Al Hidayah";
+export const SCHOOL_NAME = "STAI Al Mannan";

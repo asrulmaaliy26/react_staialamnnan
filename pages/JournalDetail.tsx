@@ -138,7 +138,7 @@ const JournalDetail: React.FC = () => {
                      <div>
                         <h3 className="text-xl font-bold text-slate-900 mb-4">Ringkasan Eksekutif</h3>
                         <p className="leading-relaxed">
-                           Penelitian ini dilakukan dalam kurun waktu semester genap dengan fokus pada metodologi deskriptif analitis. Berdasarkan data yang dikumpulkan melalui observasi lapangan di lingkungan LPI Al Hidayah, didapatkan temuan menarik yang membuktikan hipotesis awal mengenai variabel yang diteliti.
+                           Penelitian ini dilakukan dalam kurun waktu semester genap dengan fokus pada metodologi deskriptif analitis. Berdasarkan data yang dikumpulkan melalui observasi lapangan di lingkungan STAI Al Mannan, didapatkan temuan menarik yang membuktikan hipotesis awal mengenai variabel yang diteliti.
                         </p>
                         <p className="mt-4 leading-relaxed">
                            Hasil analisis menunjukkan korelasi positif yang signifikan antara dukungan sistem bimbingan sekolah dengan kualitas keluaran riset siswa. Jurnal ini direkomendasikan sebagai referensi dasar bagi penelitian lanjutan di bidang serupa.

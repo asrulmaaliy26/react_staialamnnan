@@ -54,7 +54,7 @@ const Navbar: React.FC = () => {
               <img src={import.meta.env.VITE_APP_LOGO} alt="Logo" className="w-10 h-10 object-contain rounded-full group-hover:rotate-6 transition-transform drop-shadow-md" />
               <div className="flex flex-col">
                 <span className="font-bold text-lg tracking-tight text-slate-900 leading-none">{currentTheme.name}</span>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Lembaga Pendidikan Islam</span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Sekolah Tinggi Agama Islam</span>
               </div>
             </Link>
 

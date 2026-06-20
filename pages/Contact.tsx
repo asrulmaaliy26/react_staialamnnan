@@ -77,9 +77,9 @@ const Contact: React.FC = () => {
                   <div className="flex gap-4">
                      <div className="bg-blue-50 p-4 rounded-2xl text-blue-600"><Mail /></div>
                      <div>
-                        <p className="font-bold text-slate-800">Email Resmi</p>
-                        <p className="text-slate-500">lpialhidayahkauman@gmail.com</p>
-                     </div>
+                        <h3 className="font-bold text-slate-900 mb-1">Email</h3>
+                        <p className="text-slate-500">admin@staialmannan.ac.id</p>
+                      </div>
                   </div>
                   <div className="flex gap-4">
                      <div className="bg-blue-50 p-4 rounded-2xl text-blue-600"><MapPin /></div>
