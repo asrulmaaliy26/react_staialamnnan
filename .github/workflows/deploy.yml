@@ -18,8 +18,8 @@ jobs:
       - name: 🟢 Setup Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: 📦 Install Dependencies
         run: npm ci
@@ -49,9 +49,6 @@ jobs:
             echo "✅ File berhasil diupload ke /home/staialmannan/staialmannan.ac.id"
             echo "🔧 Memperbaiki Permission (Gembok) dan Menghapus index.php bawaan..."
             chown -R staialmannan:staialmannan /home/staialmannan/staialmannan.ac.id
-            rm -f /home/staialmannan/staialmannan.ac.id/index.php
-            rm -f /home/staialmannan/staialmannan.ac.id/default.php
-            rm -f /home/staialmannan/staialmannan.ac.id/default.html
             echo "♻️ Graceful reload Apache..."
             /usr/local/apps/apache2/bin/apachectl graceful
             echo "🎉 https://staialmannan.ac.id sudah terupdate!"
