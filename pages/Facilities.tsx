@@ -29,6 +29,13 @@ const Facilities: React.FC = () => {
   });
 
   const [typeFilter, setTypeFilter] = useState<'ALL' | 'fasilitas' | 'ekstra'>('ALL');
+  const [activeFakultas, setActiveFakultas] = useState<string>('Semua');
+  const [activeJurusan, setActiveJurusan] = useState<string>('Semua');
+
+  const FAKULTAS_OPTIONS: Record<string, string[]> = {
+    'Ushuluddin': ['Studi Islam', 'Ilmu Al-Quran dan Tafsir'],
+    'Tarbiyah': ['Manajemen Pendidikan Islam']
+  };
 
   const [facilities, setFacilities] = useState<Facility[]>(homeCache.allFacilities || []);
   const [loading, setLoading] = useState(!homeCache.isFacilitiesLoaded);
@@ -49,7 +56,7 @@ const Facilities: React.FC = () => {
   const theme = LEVEL_CONFIG[activeLevel];
 
   useEffect(() => {
-    if (homeCache.isFacilitiesLoaded && facilities.length > 0) {
+    if (homeCache.isFacilitiesLoaded) {
       setLoading(false);
       return;
     }
@@ -80,9 +87,22 @@ const Facilities: React.FC = () => {
     return facilities.filter(f => {
       const matchesJenjang = effectiveJenjangFilter === 'SEMUA' || f.jenjang === effectiveJenjangFilter;
       const matchesType = typeFilter === 'ALL' || (f.type && f.type.toLowerCase() === typeFilter);
-      return matchesJenjang && matchesType;
+
+      let matchesFakultas = true;
+      let matchesJurusan = true;
+      
+      if (activeLevel === 'KAMPUS') {
+         if (activeFakultas !== 'Semua') {
+             matchesFakultas = (f.fakultas === activeFakultas);
+         }
+         if (activeJurusan !== 'Semua') {
+             matchesJurusan = (f.jurusan === activeJurusan);
+         }
+      }
+
+      return matchesJenjang && matchesType && matchesFakultas && matchesJurusan;
     });
-  }, [facilities, effectiveJenjangFilter, typeFilter]);
+  }, [facilities, effectiveJenjangFilter, typeFilter, activeLevel, activeFakultas, activeJurusan]);
 
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
 
@@ -166,8 +186,50 @@ const Facilities: React.FC = () => {
                   {typeFilter === opt.id && <ChevronRight className="w-3 h-3" />}
                 </button>
               ))}
+              </div>
             </div>
-          </div>
+
+          {activeLevel === 'KAMPUS' && (
+            <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2">
+                <Layers className="w-3 h-3" /> Filter Kampus
+              </h3>
+              <div className="flex flex-col gap-4">
+                <div>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-2">Fakultas:</label>
+                  <select
+                     className="w-full px-4 py-3 rounded-xl text-xs font-black transition-all bg-slate-50 border border-slate-200 outline-none"
+                     value={activeFakultas}
+                     onChange={(e) => {
+                        setActiveFakultas(e.target.value);
+                        setActiveJurusan('Semua');
+                     }}
+                  >
+                     <option value="Semua">Semua Fakultas</option>
+                     {Object.keys(FAKULTAS_OPTIONS).map(f => (
+                        <option key={f} value={f}>{f}</option>
+                     ))}
+                  </select>
+                </div>
+
+                {activeFakultas !== 'Semua' && (
+                  <div>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-2">Jurusan:</label>
+                    <select
+                       className="w-full px-4 py-3 rounded-xl text-xs font-black transition-all bg-slate-50 border border-slate-200 outline-none"
+                       value={activeJurusan}
+                       onChange={(e) => setActiveJurusan(e.target.value)}
+                    >
+                       <option value="Semua">Semua Jurusan</option>
+                       {FAKULTAS_OPTIONS[activeFakultas]?.map(j => (
+                          <option key={j} value={j}>{j}</option>
+                       ))}
+                    </select>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </aside>
 
         {/* Galeri Fasilitas */}
@@ -192,7 +254,7 @@ const Facilities: React.FC = () => {
             <div className="text-center py-40 bg-slate-50 rounded-[4rem] border-2 border-dashed border-slate-200">
               <Layout className="w-16 h-16 text-slate-200 mx-auto mb-6" />
               <p className="text-slate-400 font-black uppercase tracking-widest text-xs">Belum ada data fasilitas ditemukan</p>
-              <button onClick={() => { setSubFilter('SEMUA'); setTypeFilter('ALL'); }} className="mt-8 text-islamic-green-600 font-black text-xs uppercase tracking-widest hover:underline">Reset Semua Filter</button>
+              <button onClick={() => { setSubFilter('SEMUA'); setTypeFilter('ALL'); setActiveFakultas('Semua'); setActiveJurusan('Semua'); }} className="mt-8 text-islamic-green-600 font-black text-xs uppercase tracking-widest hover:underline">Reset Semua Filter</button>
             </div>
           )}
         </div>

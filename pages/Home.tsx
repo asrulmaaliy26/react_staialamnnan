@@ -134,6 +134,11 @@ const Home: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    if (homeCache.news && homeCache.news.length > 0) {
+      setLoadingNews(false);
+      return;
+    }
+
     let isMounted = true;
     const loadNewsData = async () => {
       setLoadingNews(true);
@@ -146,6 +151,7 @@ const Home: React.FC = () => {
         }
         if (isMounted) {
           setNews(newsData);
+          setHomeCache({ news: newsData });
         }
       } catch (error) {
         console.error('Error loading news data:', error);
@@ -158,7 +164,7 @@ const Home: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, [activeLevel]);
+  }, [activeLevel, homeCache.news, setHomeCache]);
 
   // Filtering data berdasarkan level
   // News fetching is now handled per level, so we rely on API response directly.
@@ -250,11 +256,15 @@ const Home: React.FC = () => {
 
           <div className="md:w-1/2 relative w-full">
             <div className="relative z-10 rounded-[2.5rem] md:rounded-[3.5rem] overflow-hidden shadow-2xl border-4 md:border-8 border-white aspect-[4/3] md:aspect-auto md:h-[500px]">
-              <img
-                src={profile ? profile.imageUrl : "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9"}
-                alt="Pendidikan"
-                className="w-full h-full object-cover"
-              />
+              {loading ? (
+                <div className="w-full h-full bg-slate-200 animate-pulse"></div>
+              ) : (
+                <img
+                  src={profile?.imageUrl || import.meta.env.VITE_ABOUT_IMAGE}
+                  alt="Pendidikan"
+                  className="w-full h-full object-cover"
+                />
+              )}
             </div>
           </div>
         </div>
@@ -342,6 +352,42 @@ const Home: React.FC = () => {
                 </div>
               </div>
             </div>
+          </div>
+        </section>
+      )}
+
+      {/* Fakultas dan Prodi Section (Hanya untuk KAMPUS) */}
+      {activeLevel === 'KAMPUS' && (
+        <section className="max-w-7xl mx-auto px-4 md:px-8 mt-16 md:mt-24">
+          <div className="text-center mb-10 md:mb-16">
+            <span className={`text-xs font-black uppercase tracking-[0.3em] ${theme.text} mb-3 block`}>Program Akademik</span>
+            <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">Fakultas & Program Studi</h2>
+            <p className="text-slate-500 max-w-2xl mx-auto mt-4 leading-relaxed font-medium">
+              Pilihan program studi unggulan yang dirancang untuk menjawab tantangan zaman berbekal nilai-nilai keislaman.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
+            {Object.entries({
+              'Ushuluddin': ['Studi Islam', 'Ilmu Al-Quran dan Tafsir'],
+              'Tarbiyah': ['Manajemen Pendidikan Islam']
+            }).map(([fakultas, prodis]) => (
+              <div key={fakultas} className="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-xl border border-slate-50 hover:shadow-2xl transition-all group">
+                <div className={`w-16 h-16 ${theme.bg} rounded-2xl flex items-center justify-center text-white mb-8 shadow-xl shadow-black/10 group-hover:scale-110 transition-transform`}>
+                  <BookOpen className="w-8 h-8" />
+                </div>
+                <h3 className="text-2xl md:text-3xl font-black text-slate-900 mb-6">Fakultas {fakultas}</h3>
+                <div className="space-y-4">
+                  {prodis.map(prodi => (
+                    <div key={prodi} className="flex items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100 hover:bg-white hover:border-slate-200 transition-colors">
+                      <div className="w-8 h-8 bg-islamic-gold-500 rounded-lg flex items-center justify-center text-white flex-shrink-0">
+                        <GraduationCap className="w-4 h-4" />
+                      </div>
+                      <span className="font-bold text-slate-700">{prodi}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         </section>
       )}

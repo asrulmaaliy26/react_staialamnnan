@@ -16,6 +16,13 @@ const Journals: React.FC = () => {
   const LEVEL_CONFIG = useLevelConfig();
   const [subFilter, setSubFilter] = useState<EducationLevel | 'SEMUA'>('SEMUA');
   const [activeCategory, setActiveCategory] = useState<string>('Semua');
+  const [activeFakultas, setActiveFakultas] = useState<string>('Semua');
+  const [activeJurusan, setActiveJurusan] = useState<string>('Semua');
+
+  const FAKULTAS_OPTIONS: Record<string, string[]> = {
+    'Ushuluddin': ['Studi Islam', 'Ilmu Al-Quran dan Tafsir'],
+    'Tarbiyah': ['Manajemen Pendidikan Islam']
+  };
 
   const [categories, setCategories] = useState<string[]>(homeCache.journalCategories && homeCache.journalCategories.length > 0 ? homeCache.journalCategories : ['Semua']);
   const [journals, setJournals] = useState<JournalItem[]>(homeCache.allJournals || []);
@@ -24,7 +31,7 @@ const Journals: React.FC = () => {
   const [loading, setLoading] = useState(!homeCache.isJournalsLoaded);
 
   const [limit, setLimit] = useState(homeCache.allJournals?.length || 6);
-  const [hasMore, setHasMore] = useState(true);
+  const [hasMore, setHasMore] = useState(homeCache.hasMoreJournals ?? true);
 
   useEffect(() => {
     if (homeCache.journalCategories && homeCache.journalCategories.length > 0) return;
@@ -44,7 +51,7 @@ const Journals: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (homeCache.isJournalsLoaded && journals.length >= limit) {
+    if (homeCache.isJournalsLoaded && (journals.length >= limit || !homeCache.hasMoreJournals)) {
       setLoading(false);
       return;
     }
@@ -54,12 +61,12 @@ const Journals: React.FC = () => {
       try {
         const journalsData = await fetchJournalsWithLimit(limit);
         setJournals(journalsData);
-        setHomeCache({ allJournals: journalsData, isJournalsLoaded: true });
-
         if (journalsData.length < limit) {
           setHasMore(false);
+          setHomeCache({ allJournals: journalsData, isJournalsLoaded: true, hasMoreJournals: false });
         } else {
           setHasMore(true);
+          setHomeCache({ allJournals: journalsData, isJournalsLoaded: true, hasMoreJournals: true });
         }
       } catch (error) {
         console.error('Error loading data:', error);
@@ -85,9 +92,22 @@ const Journals: React.FC = () => {
       // Show journals if: effectiveLevelFilter is SEMUA (show all), journal jenjang is UMUM (universal), or journal jenjang matches effectiveLevelFilter
       const matchesLevel = effectiveLevelFilter === 'SEMUA' || normalizedJenjang === 'UMUM' || normalizedJenjang === effectiveLevelFilter;
       const matchesCategory = activeCategory === 'Semua' || journal.category === activeCategory;
-      return matchesLevel && matchesCategory;
+
+      let matchesFakultas = true;
+      let matchesJurusan = true;
+      
+      if (activeLevel === 'KAMPUS') {
+         if (activeFakultas !== 'Semua') {
+             matchesFakultas = (journal.fakultas === activeFakultas);
+         }
+         if (activeJurusan !== 'Semua') {
+             matchesJurusan = (journal.jurusan === activeJurusan);
+         }
+      }
+
+      return matchesLevel && matchesCategory && matchesFakultas && matchesJurusan;
     });
-  }, [journals, effectiveLevelFilter, activeCategory]);
+  }, [journals, effectiveLevelFilter, activeCategory, activeLevel, activeFakultas, activeJurusan]);
 
   const renderedJournals = useMemo(() => {
     return filteredJournals.map(journal => (
@@ -162,6 +182,48 @@ const Journals: React.FC = () => {
               )}
             </div>
           </div>
+
+          {activeLevel === 'KAMPUS' && (
+            <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 mt-8">
+              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                <Layers className="w-3 h-3" /> Filter Kampus
+              </h3>
+              <div className="flex flex-col gap-4">
+                <div>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-2">Fakultas:</label>
+                  <select
+                     className="w-full px-4 py-3 rounded-xl text-xs font-black transition-all bg-slate-50 border border-slate-200 outline-none"
+                     value={activeFakultas}
+                     onChange={(e) => {
+                        setActiveFakultas(e.target.value);
+                        setActiveJurusan('Semua');
+                     }}
+                  >
+                     <option value="Semua">Semua Fakultas</option>
+                     {Object.keys(FAKULTAS_OPTIONS).map(f => (
+                        <option key={f} value={f}>{f}</option>
+                     ))}
+                  </select>
+                </div>
+
+                {activeFakultas !== 'Semua' && (
+                  <div>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-2">Jurusan:</label>
+                    <select
+                       className="w-full px-4 py-3 rounded-xl text-xs font-black transition-all bg-slate-50 border border-slate-200 outline-none"
+                       value={activeJurusan}
+                       onChange={(e) => setActiveJurusan(e.target.value)}
+                    >
+                       <option value="Semua">Semua Jurusan</option>
+                       {FAKULTAS_OPTIONS[activeFakultas]?.map(j => (
+                          <option key={j} value={j}>{j}</option>
+                       ))}
+                    </select>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </aside>
 
         {/* List Jurnal */}
@@ -197,7 +259,7 @@ const Journals: React.FC = () => {
             <div className="text-center py-40 bg-slate-50 rounded-[4rem] border-2 border-dashed border-slate-200">
               <FileText className="w-16 h-16 text-slate-200 mx-auto mb-6" />
               <p className="text-slate-400 font-black uppercase tracking-widest text-xs">Jurnal tidak ditemukan</p>
-              <button onClick={() => { setActiveCategory('Semua'); setSubFilter('SEMUA'); }} className="mt-8 text-islamic-green-600 font-black text-xs uppercase tracking-widest hover:underline">Reset Filter</button>
+              <button onClick={() => { setActiveCategory('Semua'); setSubFilter('SEMUA'); setActiveFakultas('Semua'); setActiveJurusan('Semua'); }} className="mt-8 text-islamic-green-600 font-black text-xs uppercase tracking-widest hover:underline">Reset Filter</button>
             </div>
           )}
         </div>

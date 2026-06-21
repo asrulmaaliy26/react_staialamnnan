@@ -7,6 +7,16 @@ import { LevelContext } from '../App';
 import { EducationLevel } from '../types';
 import { useLevelConfig } from '../hooks/useLevelConfig';
 
+const DOMAIN_LINKS: Record<string, string> = {
+  KAMPUS: 'https://staialmannan.ac.id',
+  MI: 'https://mi.lpialhidayah.or.id',
+  SMPT: 'https://smpt.lpialhidayah.or.id',
+  MA: 'https://ma.lpialhidayah.or.id',
+  MADIN: 'https://madin.lpialhidayah.or.id',
+  TPQ: 'https://tpq.lpialhidayah.or.id',
+  UMUM: 'https://lpialhidayah.or.id',
+};
+
 const Navbar: React.FC = () => {
   const { activeLevel, setActiveLevel } = useContext(LevelContext);
   const LEVEL_CONFIG = useLevelConfig();
@@ -66,16 +76,18 @@ const Navbar: React.FC = () => {
                 <ChevronDown className="w-3 h-3" />
               </button>
               {isLevelSelectorOpen && (
-                <div className="absolute top-full left-0 mt-2 w-48 bg-white border border-slate-100 shadow-2xl rounded-2xl overflow-hidden py-2 animate-fadeIn z-[60]">
-                  {levels.map(l => (
-                    <button
-                      key={l}
-                      onClick={() => { setActiveLevel(l); setIsLevelSelectorOpen(false); }}
-                      className={`w-full text-left px-5 py-3 text-xs font-black hover:bg-slate-50 transition-colors ${activeLevel === l ? 'text-islamic-gold-500' : 'text-slate-600'}`}
-                    >
-                      {l === 'UMUM' ? 'Pusat (Umum)' : l}
-                    </button>
-                  ))}
+                <div className="absolute top-full left-0 pt-2 w-48 z-[60]">
+                  <div className="bg-white border border-slate-100 shadow-2xl rounded-2xl overflow-hidden py-2 animate-fadeIn">
+                    {levels.map(l => (
+                      <a
+                        key={l}
+                        href={DOMAIN_LINKS[l] || '#'}
+                        className={`block w-full text-left px-5 py-3 text-xs font-black hover:bg-slate-50 transition-colors ${activeLevel === l ? 'text-islamic-gold-500' : 'text-slate-600'}`}
+                      >
+                        {l === 'UMUM' ? 'Pusat (Umum)' : l}
+                      </a>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
@@ -158,13 +170,13 @@ const Navbar: React.FC = () => {
         <div className="lg:hidden bg-white border-t border-slate-100 py-6 px-4 space-y-4 animate-fadeIn">
           <div className="grid grid-cols-5 gap-2 px-2">
             {levels.map(l => (
-              <button
+              <a
                 key={l}
-                onClick={() => setActiveLevel(l)}
-                className={`py-2 rounded-lg text-[10px] font-black border transition-all ${activeLevel === l ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-400 border-slate-100'}`}
+                href={DOMAIN_LINKS[l] || '#'}
+                className={`flex items-center justify-center py-2 rounded-lg text-[10px] font-black border transition-all ${activeLevel === l ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-400 border-slate-100'}`}
               >
                 {l}
-              </button>
+              </a>
             ))}
           </div>
           {navLinks.map((link) => (

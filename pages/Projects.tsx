@@ -16,6 +16,13 @@ const Projects: React.FC = () => {
   const LEVEL_CONFIG = useLevelConfig();
   const [subFilter, setSubFilter] = useState<EducationLevel | 'SEMUA'>('SEMUA');
   const [activeCategory, setActiveCategory] = useState<string>('Semua');
+  const [activeFakultas, setActiveFakultas] = useState<string>('Semua');
+  const [activeJurusan, setActiveJurusan] = useState<string>('Semua');
+
+  const FAKULTAS_OPTIONS: Record<string, string[]> = {
+    'Ushuluddin': ['Studi Islam', 'Ilmu Al-Quran dan Tafsir'],
+    'Tarbiyah': ['Manajemen Pendidikan Islam']
+  };
 
   const [categories, setCategories] = useState<string[]>(homeCache.projectCategories && homeCache.projectCategories.length > 0 ? homeCache.projectCategories : ['Semua']);
   const [projects, setProjects] = useState<ProjectItem[]>(homeCache.allProjects || []);
@@ -24,7 +31,7 @@ const Projects: React.FC = () => {
   const [projLoading, setProjLoading] = useState(!homeCache.isProjectsLoaded);
 
   const [limit, setLimit] = useState(homeCache.allProjects?.length || 6);
-  const [hasMore, setHasMore] = useState(true);
+  const [hasMore, setHasMore] = useState(homeCache.hasMoreProjects ?? true);
   const theme = LEVEL_CONFIG[activeLevel];
 
   useEffect(() => {
@@ -45,7 +52,7 @@ const Projects: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (homeCache.isProjectsLoaded && projects.length >= limit) {
+    if (homeCache.isProjectsLoaded && (projects.length >= limit || !homeCache.hasMoreProjects)) {
       setProjLoading(false);
       return;
     }
@@ -55,12 +62,12 @@ const Projects: React.FC = () => {
       try {
         const projectsData = await fetchProjectsWithLimit(limit);
         setProjects(projectsData);
-        setHomeCache({ allProjects: projectsData, isProjectsLoaded: true });
-
         if (projectsData.length < limit) {
           setHasMore(false);
+          setHomeCache({ allProjects: projectsData, isProjectsLoaded: true, hasMoreProjects: false });
         } else {
           setHasMore(true);
+          setHomeCache({ allProjects: projectsData, isProjectsLoaded: true, hasMoreProjects: true });
         }
       } catch (error) {
         console.error('Error loading project data:', error);
@@ -80,9 +87,22 @@ const Projects: React.FC = () => {
       // Show projects if: effectiveLevelFilter is SEMUA (show all), project jenjang is UMUM (universal), or project jenjang matches effectiveLevelFilter
       const matchesLevel = effectiveLevelFilter === 'SEMUA' || normalizedJenjang === 'UMUM' || normalizedJenjang === effectiveLevelFilter;
       const matchesCategory = activeCategory === 'Semua' || project.category === activeCategory;
-      return matchesLevel && matchesCategory;
+
+      let matchesFakultas = true;
+      let matchesJurusan = true;
+      
+      if (activeLevel === 'KAMPUS') {
+         if (activeFakultas !== 'Semua') {
+             matchesFakultas = (project.fakultas === activeFakultas);
+         }
+         if (activeJurusan !== 'Semua') {
+             matchesJurusan = (project.jurusan === activeJurusan);
+         }
+      }
+
+      return matchesLevel && matchesCategory && matchesFakultas && matchesJurusan;
     });
-  }, [projects, effectiveLevelFilter, activeCategory]);
+  }, [projects, effectiveLevelFilter, activeCategory, activeLevel, activeFakultas, activeJurusan]);
 
   const renderedProjects = useMemo(() => {
     return filteredProjects.map(project => (
@@ -165,6 +185,48 @@ const Projects: React.FC = () => {
               )}
             </div>
           </div>
+
+          {activeLevel === 'KAMPUS' && (
+            <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 mt-8">
+              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                <Layers className="w-3 h-3" /> Filter Kampus
+              </h3>
+              <div className="flex flex-col gap-4">
+                <div>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-2">Fakultas:</label>
+                  <select
+                     className="w-full px-4 py-3 rounded-xl text-xs font-black transition-all bg-slate-50 border border-slate-200 outline-none"
+                     value={activeFakultas}
+                     onChange={(e) => {
+                        setActiveFakultas(e.target.value);
+                        setActiveJurusan('Semua');
+                     }}
+                  >
+                     <option value="Semua">Semua Fakultas</option>
+                     {Object.keys(FAKULTAS_OPTIONS).map(f => (
+                        <option key={f} value={f}>{f}</option>
+                     ))}
+                  </select>
+                </div>
+
+                {activeFakultas !== 'Semua' && (
+                  <div>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-2">Jurusan:</label>
+                    <select
+                       className="w-full px-4 py-3 rounded-xl text-xs font-black transition-all bg-slate-50 border border-slate-200 outline-none"
+                       value={activeJurusan}
+                       onChange={(e) => setActiveJurusan(e.target.value)}
+                    >
+                       <option value="Semua">Semua Jurusan</option>
+                       {FAKULTAS_OPTIONS[activeFakultas]?.map(j => (
+                          <option key={j} value={j}>{j}</option>
+                       ))}
+                    </select>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </aside>
 
         {/* Grid Konten */}
@@ -200,7 +262,7 @@ const Projects: React.FC = () => {
             <div className="text-center py-40 bg-slate-50 rounded-[4rem] border-2 border-dashed border-slate-200">
               <LayoutGrid className="w-16 h-16 text-slate-200 mx-auto mb-6" />
               <p className="text-slate-400 font-black uppercase tracking-[0.2em] text-xs">Belum ada projek ditemukan</p>
-              <button onClick={() => { setActiveCategory('Semua'); setSubFilter('SEMUA'); }} className="mt-8 text-islamic-gold-500 font-black text-xs uppercase tracking-widest hover:underline">Reset Semua Filter</button>
+              <button onClick={() => { setActiveCategory('Semua'); setSubFilter('SEMUA'); setActiveFakultas('Semua'); setActiveJurusan('Semua'); }} className="mt-8 text-islamic-gold-500 font-black text-xs uppercase tracking-widest hover:underline">Reset Semua Filter</button>
             </div>
           )}
         </div>

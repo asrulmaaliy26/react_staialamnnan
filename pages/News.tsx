@@ -14,8 +14,13 @@ const News: React.FC = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [activeCategory, setActiveCategory] = useState<string>("Semua");
+  const [activeFakultas, setActiveFakultas] = useState<string>("Semua");
+  const [activeJurusan, setActiveJurusan] = useState<string>("Semua");
 
-  // Init data from cache
+  const FAKULTAS_OPTIONS: Record<string, string[]> = {
+    'Ushuluddin': ['Studi Islam', 'Ilmu Al-Quran dan Tafsir'],
+    'Tarbiyah': ['Manajemen Pendidikan Islam']
+  };
   const [categories, setCategories] = useState<string[]>(
     homeCache.newsCategories && homeCache.newsCategories.length > 0
       ? homeCache.newsCategories
@@ -31,7 +36,7 @@ const News: React.FC = () => {
   const [newsLoading, setNewsLoading] = useState(!homeCache.isNewsLoaded);
 
   const [limit, setLimit] = useState(homeCache.allNews?.length || 6);
-  const [hasMore, setHasMore] = useState(true);
+  const [hasMore, setHasMore] = useState(homeCache.hasMoreNews ?? true);
 
   const { activeLevel } = useContext(LevelContext);
   const LEVEL_CONFIG = useLevelConfig();
@@ -58,7 +63,7 @@ const News: React.FC = () => {
   // News Data Load (with limit)
   useEffect(() => {
     // If loaded from cache and we have enough data for current limit, skip fetch
-    if (homeCache.isNewsLoaded && news.length >= limit) {
+    if (homeCache.isNewsLoaded && (news.length >= limit || !homeCache.hasMoreNews)) {
       setNewsLoading(false);
       return;
     }
@@ -68,13 +73,13 @@ const News: React.FC = () => {
       try {
         const newsData = await fetchNewsWithLimit(limit);
         setNews(newsData);
-        setHomeCache({ allNews: newsData, isNewsLoaded: true });
-
         // If we received fewer items than requested limit, we've reached the end
         if (newsData.length < limit) {
           setHasMore(false);
+          setHomeCache({ allNews: newsData, isNewsLoaded: true, hasMoreNews: false });
         } else {
           setHasMore(true);
+          setHomeCache({ allNews: newsData, isNewsLoaded: true, hasMoreNews: true });
         }
       } catch (error) {
         console.error("Error loading news:", error);
@@ -97,9 +102,21 @@ const News: React.FC = () => {
       const matchesCategory =
         activeCategory === "Semua" ? true : n.category === activeCategory;
 
-      return matchesSearch && matchesLevel && matchesCategory;
+      let matchesFakultas = true;
+      let matchesJurusan = true;
+      
+      if (activeLevel === 'KAMPUS') {
+         if (activeFakultas !== 'Semua') {
+             matchesFakultas = (n.fakultas === activeFakultas);
+         }
+         if (activeJurusan !== 'Semua') {
+             matchesJurusan = (n.jurusan === activeJurusan);
+         }
+      }
+
+      return matchesSearch && matchesLevel && matchesCategory && matchesFakultas && matchesJurusan;
     });
-  }, [news, searchTerm, activeLevel, activeCategory]);
+  }, [news, searchTerm, activeLevel, activeCategory, activeFakultas, activeJurusan]);
 
   // Debug logging
   // useEffect(() => {
@@ -202,6 +219,47 @@ const News: React.FC = () => {
                   ))
                 )}
               </div>
+
+              {activeLevel === 'KAMPUS' && (
+                  <div className="flex flex-wrap items-center gap-4 mt-4">
+                     <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                           Fakultas:
+                        </span>
+                        <select
+                           className={`px-4 py-2 rounded-full text-xs font-black transition-all duration-300 border bg-white text-slate-500 border-slate-200 outline-none`}
+                           value={activeFakultas}
+                           onChange={(e) => {
+                              setActiveFakultas(e.target.value);
+                              setActiveJurusan('Semua');
+                           }}
+                        >
+                           <option value="Semua">Semua Fakultas</option>
+                           {Object.keys(FAKULTAS_OPTIONS).map(f => (
+                              <option key={f} value={f}>{f}</option>
+                           ))}
+                        </select>
+                     </div>
+
+                     {activeFakultas !== 'Semua' && (
+                        <div className="flex items-center gap-2">
+                           <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                              Jurusan:
+                           </span>
+                           <select
+                              className={`px-4 py-2 rounded-full text-xs font-black transition-all duration-300 border bg-white text-slate-500 border-slate-200 outline-none`}
+                              value={activeJurusan}
+                              onChange={(e) => setActiveJurusan(e.target.value)}
+                           >
+                              <option value="Semua">Semua Jurusan</option>
+                              {FAKULTAS_OPTIONS[activeFakultas]?.map(j => (
+                                 <option key={j} value={j}>{j}</option>
+                              ))}
+                           </select>
+                        </div>
+                     )}
+                  </div>
+              )}
             </div>
           </header>
           <div className="space-y-10">
@@ -248,6 +306,8 @@ const News: React.FC = () => {
                   onClick={() => {
                     setSearchTerm("");
                     setActiveCategory("Semua");
+                    setActiveFakultas("Semua");
+                    setActiveJurusan("Semua");
                   }}
                   className="mt-6 text-islamic-green-600 font-bold text-sm underline"
                 >
