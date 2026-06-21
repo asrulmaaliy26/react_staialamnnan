@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useRef } from 'react';
 import Carousel from '../components/Carousel';
 
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -94,7 +94,16 @@ const Home: React.FC = () => {
           try {
             const parsedStats = JSON.parse(envStats);
             if (Array.isArray(parsedStats)) {
-              loadedStats = { 'UMUM': parsedStats, 'MA': parsedStats, 'SMPT': parsedStats, 'TK': parsedStats, 'KAMPUS': parsedStats, 'MI': parsedStats };
+              loadedStats = {
+                UMUM: parsedStats,
+                MA: parsedStats,
+                SMPT: parsedStats,
+                TK: parsedStats,
+                KAMPUS: parsedStats,
+                MI: parsedStats,
+                MADIN: parsedStats,
+                TPQ: parsedStats,
+              };
             }
           } catch (e) {
             console.error("Invalid VITE_HOME_STATS", e);
@@ -164,7 +173,8 @@ const Home: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, [activeLevel, homeCache.news, setHomeCache]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeLevel, setHomeCache]);
 
   // Filtering data berdasarkan level
   // News fetching is now handled per level, so we rely on API response directly.
