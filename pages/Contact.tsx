@@ -1,6 +1,6 @@
 
 import React, { useState, useContext } from 'react';
-import { Send, MessageSquare, AlertCircle, Phone, Mail, MapPin } from 'lucide-react';
+import { Send, MessageSquare, AlertCircle, Phone, Mail, MapPin, Lightbulb } from 'lucide-react';
 
 import { submitContactUs, submitComplaint } from '../services/api';
 import { Loader2 } from 'lucide-react';
@@ -94,7 +94,15 @@ const Contact: React.FC = () => {
             {/* Form Side */}
             <div className="lg:w-2/3">
                <div className="bg-white p-6 md:p-12 rounded-[2.5rem] md:rounded-[3rem] shadow-xl border border-slate-50">
-                  <div className="flex gap-4 mb-10">
+                  <div className="flex gap-4 mb-10 flex-wrap">
+                     <a
+                        href="https://docs.google.com/forms/d/e/1FAIpQLSekG-5goFjU8DTR8HO-Z_jO_SL3giZQ_YfAiebX_RmrstCPBA/viewform"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 px-6 py-3 rounded-full font-bold transition-all bg-islamic-gold-500 text-white shadow-lg animate-pulse hover:bg-islamic-gold-600 hover:scale-105"
+                     >
+                        <Lightbulb className="w-4 h-4" /> Aspirasi
+                     </a>
                      <button
                         onClick={() => { setFormType('contact'); setStatus(null); }}
                         className={`flex items-center gap-2 px-6 py-3 rounded-full font-bold transition-all ${formType === 'contact' ? 'bg-blue-600 text-white shadow-lg' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'

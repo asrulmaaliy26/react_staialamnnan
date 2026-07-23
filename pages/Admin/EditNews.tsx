@@ -159,13 +159,18 @@ const EditNews: React.FC = () => {
       toast.warning('Judul harus diisi');
       return;
     }
-    if (!excerpt.trim()) {
-      toast.warning('Ringkasan harus diisi');
-      return;
-    }
     if (!content.trim()) {
       toast.warning('Konten harus diisi');
       return;
+    }
+
+    // Auto-generate excerpt if empty
+    let finalExcerpt = excerpt.trim();
+    if (!finalExcerpt) {
+      // Strip HTML tags
+      const strippedContent = content.replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#[0-9]+;/g, ' ').replace(/\s+/g, ' ').trim();
+      finalExcerpt = strippedContent.substring(0, 150) + (strippedContent.length > 150 ? '...' : '');
+      setExcerpt(finalExcerpt);
     }
 
     setIsSubmitting(true);
@@ -175,10 +180,22 @@ const EditNews: React.FC = () => {
       // Filter out null/empty gallery items
       const validGallery = gallery.filter(file => file !== null && file !== undefined);
 
+      // If no main image selected and no existing image, use default logokampus.jpg
+      let finalMainImage: File | undefined = mainImage || undefined;
+      if (!finalMainImage && !existingMainImage) {
+        try {
+          const res = await fetch('/logokampus.jpg');
+          const blob = await res.blob();
+          finalMainImage = new File([blob], 'logokampus.jpg', { type: blob.type || 'image/jpeg' });
+        } catch {
+          finalMainImage = undefined;
+        }
+      }
+
       const response = await updateNews({
         id: newsId,
         title,
-        excerpt,
+        excerpt: finalExcerpt,
         content,
         date: today,
         category,
@@ -186,7 +203,7 @@ const EditNews: React.FC = () => {
         fakultas: jenjang === 'KAMPUS' && lingkupKampus === 'Spesifik' ? fakultas : undefined,
         jurusan: jenjang === 'KAMPUS' && lingkupKampus === 'Spesifik' ? jurusan : undefined,
         level: category === 'Prestasi' ? level : undefined,
-        main_image: mainImage || undefined,
+        main_image: finalMainImage,
         gallery: validGallery.length > 0 ? validGallery : undefined,
       });
 
@@ -250,7 +267,7 @@ const EditNews: React.FC = () => {
           <section className="bg-white p-10 rounded-[3rem] shadow-sm border border-slate-100">
             <div className="space-y-8">
               <div>
-                <label className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-4">Judul Artikel</label>
+                <label className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-4">Judul Artikel <span className="text-red-500 text-sm">*</span></label>
                 <input type="text" className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl font-bold text-xl" value={title} onChange={(e) => setTitle(e.target.value)} />
               </div>
 
@@ -482,7 +499,7 @@ const EditNews: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-4">Konten Berita</label>
+                <label className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-4">Konten Berita <span className="text-red-500 text-sm">*</span></label>
                 <div className="bg-slate-50 border border-slate-100 rounded-[2.5rem] overflow-hidden">
                   <ReactQuill
                     theme="snow"
